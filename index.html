@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Robin's Recipe Box</title>
+  <style>
+    :root{
+      --bg:#fbf7f1;
+      --panel:#fffdf9;
+      --ink:#2a241f;
+      --muted:#766d64;
+      --line:#e6ddd2;
+      --accent:#a6462d;
+      --accent2:#d88a45;
+      --good:#527a4d;
+      --shadow:0 12px 30px rgba(64,42,24,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:linear-gradient(180deg,#f7efe5 0,#fbf7f1 180px);
+      color:var(--ink);
+    }
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    header{
+      position:sticky; top:0; z-index:20;
+      backdrop-filter:blur(12px);
+      background:rgba(251,247,241,.92);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar{
+      max-width:1100px; margin:auto; padding:14px 18px;
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:850;letter-spacing:.2px}
+    .brand-badge{
+      width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+      background:var(--ink); color:white; font-size:20px;
+      box-shadow:var(--shadow);
+    }
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      border:1px solid var(--line); background:white; color:var(--ink);
+      border-radius:12px; padding:10px 13px; font-weight:700;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+    .btn.danger{background:#fff3f1;border-color:#efc6bf;color:#912f1d}
+    main{max-width:1100px;margin:auto;padding:26px 18px 60px}
+    .hero{
+      display:grid;grid-template-columns:1.5fr 1fr;gap:18px;
+      background:var(--panel);border:1px solid var(--line);border-radius:24px;
+      padding:24px;box-shadow:var(--shadow);margin-bottom:20px;
+    }
+    .hero h1{font-size:clamp(28px,5vw,48px);line-height:1;margin:0 0 12px}
+    .hero p{color:var(--muted);margin:0;max-width:650px}
+    .hero-stat{
+      border-radius:18px;padding:18px;background:#2f2a25;color:white;
+      display:flex;flex-direction:column;justify-content:center;min-height:120px
+    }
+    .hero-stat strong{font-size:34px}
+    .hero-stat span{color:#dfd6cd}
+    .controls{
+      display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin:20px 0 12px
+    }
+    .search{
+      width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:14px;background:white;
+      outline:none
+    }
+    .search:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(216,138,69,.15)}
+    .chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 16px}
+    .chip{
+      white-space:nowrap;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;
+      font-weight:700;color:var(--muted)
+    }
+    .chip.active{background:var(--ink);color:white;border-color:var(--ink)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+    .card{
+      background:white;border:1px solid var(--line);border-radius:var(--radius);padding:17px;
+      box-shadow:0 8px 20px rgba(64,42,24,.06);display:flex;flex-direction:column;gap:10px;
+      min-height:210px
+    }
+    .card h3{margin:0;font-size:21px;line-height:1.15}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+    .tag{background:#f5eee6;border-radius:999px;padding:5px 8px}
+    .keeper{background:#edf6eb;color:#315d2d}
+    .card p{color:var(--muted);margin:0;line-height:1.45}
+    .card footer{margin-top:auto;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .linkbtn{border:0;background:transparent;color:var(--accent);font-weight:800;padding:5px 0}
+    .empty{
+      border:2px dashed var(--line);border-radius:18px;padding:32px;text-align:center;color:var(--muted)
+    }
+    dialog{
+      width:min(780px,calc(100vw - 24px));max-height:92vh;border:1px solid var(--line);
+      border-radius:22px;padding:0;background:var(--panel);box-shadow:0 30px 80px rgba(0,0,0,.25)
+    }
+    dialog::backdrop{background:rgba(28,23,20,.55);backdrop-filter:blur(2px)}
+    .modal-head{
+      position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);
+      padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:2
+    }
+    .modal-head h2{margin:0;font-size:24px}
+    .modal-body{padding:20px}
+    .recipe-view h3{margin:22px 0 8px}
+    .recipe-view ol,.recipe-view ul{padding-left:22px;line-height:1.55}
+    .notes{background:#fff6e8;border:1px solid #f0d9b3;padding:12px 14px;border-radius:13px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}
+    input,textarea,select{
+      width:100%;border:1px solid var(--line);border-radius:11px;padding:10px 11px;background:white;color:var(--ink)
+    }
+    textarea{min-height:115px;resize:vertical}
+    .full{grid-column:1/-1}
+    .form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}
+    .tiny{font-size:12px;color:var(--muted)}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    @media (max-width:700px){
+      .hero{grid-template-columns:1fr}
+      .controls{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+      .full{grid-column:auto}
+      .topbar{align-items:flex-start}
+      .brand span{display:none}
+      main{padding-top:18px}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">🍲</div>
+      <span>Robin's Recipe Box</span>
+    </div>
+    <div class="actions">
+      <button class="btn" id="importBtn">Import</button>
+      <button class="btn" id="exportBtn">Export</button>
+      <button class="btn primary" id="addBtn">+ Add Recipe</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <h1>Recipes worth making again.</h1>
+      <p>Your personal keeper collection. Search fast, open a recipe, tweak it until it is right, and keep only the versions you actually want to cook again.</p>
+    </div>
+    <div class="hero-stat">
+      <strong id="recipeCount">0</strong>
+      <span>keeper recipes</span>
+    </div>
+  </section>
+
+  <section class="controls">
+    <input id="search" class="search" type="search" placeholder="Search recipes, ingredients, or tags…" />
+    <select id="sort">
+      <option value="updated">Recently updated</option>
+      <option value="title">A–Z</option>
+      <option value="category">Category</option>
+    </select>
+  </section>
+
+  <div class="chips" id="categoryChips"></div>
+  <section class="grid" id="recipeGrid"></section>
+</main>
+
+<dialog id="viewDialog">
+  <div class="modal-head">
+    <h2 id="viewTitle"></h2>
+    <button class="btn" onclick="viewDialog.close()">Close</button>
+  </div>
+  <div class="modal-body recipe-view" id="viewBody"></div>
+</dialog>
+
+<dialog id="editDialog">
+  <div class="modal-head">
+    <h2 id="formTitle">Add Recipe</h2>
+    <button class="btn" onclick="editDialog.close()">Close</button>
+  </div>
+  <div class="modal-body">
+    <form id="recipeForm">
+      <input type="hidden" id="recipeId" />
+      <div class="form-grid">
+        <div class="full">
+          <label for="title">Recipe name</label>
+          <input id="title" required placeholder="e.g. Sheet-Pan Chicken Thighs" />
+        </div>
+        <div>
+          <label for="category">Category</label>
+          <input id="category" placeholder="Dinner, Side, Dessert…" />
+        </div>
+        <div>
+          <label for="status">Status</label>
+          <select id="status">
+            <option value="Keeper">Keeper</option>
+            <option value="Testing">Testing</option>
+          </select>
+        </div>
+        <div>
+          <label for="servings">Servings</label>
+          <input id="servings" placeholder="4" />
+        </div>
+        <div>
+          <label for="time">Time</label>
+          <input id="time" placeholder="30 minutes" />
+        </div>
+        <div class="full">
+          <label for="tags">Tags</label>
+          <input id="tags" placeholder="air fryer, chicken, weeknight" />
+          <div class="tiny">Separate tags with commas.</div>
+        </div>
+        <div class="full">
+          <label for="summary">Short description</label>
+          <textarea id="summary" placeholder="What makes this version a keeper?"></textarea>
+        </div>
+        <div class="full">
+          <label for="ingredients">Ingredients</label>
+          <textarea id="ingredients" required placeholder="One ingredient per line"></textarea>
+        </div>
+        <div class="full">
+          <label for="instructions">Instructions</label>
+          <textarea id="instructions" required placeholder="One step per line"></textarea>
+        </div>
+        <div class="full">
+          <label for="notes">Notes / changes for next time</label>
+          <textarea id="notes" placeholder="Optional tips, substitutions, exact settings, etc."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn danger" id="deleteBtn" style="display:none">Delete</button>
+        <button type="button" class="btn" onclick="editDialog.close()">Cancel</button>
+        <button class="btn primary" type="submit">Save Recipe</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<input type="file" id="fileInput" accept=".json,application/json" hidden />
+
+<script>
+const STORAGE_KEY = "robins-recipe-box-v1";
+
+const starterRecipes = [
+  {
+    id:"convection-roasted-dry-rub-chicken-thighs",
+    title:"Convection-Roasted Dry-Rub Chicken Thighs",
+    category:"Dinner",
+    status:"Keeper",
+    servings:"6–8",
+    time:"About 30 minutes",
+    tags:["chicken","chicken thighs","convection roast","sheet pan","weeknight"],
+    summary:"Boneless, skinless chicken thighs coated with oil, dry rub, fresh garlic and salt, then convection-roasted until browned and juicy.",
+    ingredients:[
+      "1 pack BJ’s boneless, skinless chicken thighs (about 3½ lb)",
+      "1½ tablespoons oil",
+      "Prepared dry rub, enough to coat",
+      "4–6 cloves fresh garlic, minced",
+      "Salt, to taste"
+    ],
+    instructions:[
+      "Preheat the oven to 400°F on Convection Roast.",
+      "Pat the chicken thighs dry with paper towels.",
+      "Toss the thighs with the oil, prepared dry rub, minced garlic and salt until evenly coated.",
+      "Arrange the thighs in a single layer on a sheet pan, leaving a little space between pieces.",
+      "Convection-roast for 13 minutes.",
+      "Flip each thigh.",
+      "Roast for another 10–14 minutes, until browned and the thickest pieces reach about 180°F.",
+      "Rest for 5 minutes before serving."
+    ],
+    notes:"Total roasting time is usually about 23–27 minutes. If the dry rub contains a lot of sugar, reduce the oven to 375°F to help prevent burning.",
+    created:"2026-09-19",
+    updated:"2026-09-19"
+  },
+  {
+    id:"white-rice-instant-zest",
+    title:"White Rice — Instant Zest Rice Cooker",
+    category:"Sides",
+    status:"Keeper",
+    servings:"About 3 cups cooked",
+    time:"Rice cooker cycle",
+    tags:["rice","rice cooker","basic"],
+    summary:"The dependable white-rice ratio for the Instant Zest 8-cup rice cooker.",
+    ingredients:[
+      "1 cup white rice",
+      "1.25 cups water",
+      "Pinch of salt (optional)"
+    ],
+    instructions:[
+      "Rinse the rice if desired and drain well.",
+      "Add 1 cup rice and 1.25 cups water to the rice cooker.",
+      "Add a pinch of salt if using.",
+      "Run the normal White Rice cycle.",
+      "When finished, fluff with a fork and serve."
+    ],
+    notes:"Scale the water at roughly 1.25 cups water per 1 cup white rice.",
+    created:"2026-09-19",
+    updated:"2026-09-19"
+  }
+];
+
+const CONTENT_VERSION = 2;
+const VERSION_KEY = "robins-recipe-box-content-version";
+
+function loadRecipes(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  const storedVersion = Number(localStorage.getItem(VERSION_KEY) || 0);
+
+  if(!raw){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(starterRecipes));
+    localStorage.setItem(VERSION_KEY, String(CONTENT_VERSION));
+    return structuredClone(starterRecipes);
+  }
+
+  try {
+    let stored = JSON.parse(raw);
+    if(!Array.isArray(stored)) throw new Error("Invalid recipe library");
+
+    if(storedVersion < CONTENT_VERSION){
+      const additions = starterRecipes.filter(s => !stored.some(r => r.id === s.id));
+      if(additions.length){
+        stored = [...additions.map(r => structuredClone(r)), ...stored];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      }
+      localStorage.setItem(VERSION_KEY, String(CONTENT_VERSION));
+    }
+    return stored;
+  } catch {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(starterRecipes));
+    localStorage.setItem(VERSION_KEY, String(CONTENT_VERSION));
+    return structuredClone(starterRecipes);
+  }
+}
+function saveRecipes(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+  render();
+}
+let recipes = loadRecipes();
+let activeCategory = "All";
+
+const grid = document.getElementById("recipeGrid");
+const chips = document.getElementById("categoryChips");
+const search = document.getElementById("search");
+const sort = document.getElementById("sort");
+const viewDialog = document.getElementById("viewDialog");
+const editDialog = document.getElementById("editDialog");
+
+function esc(s=""){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+}
+function slugify(s){
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") + "-" + Date.now().toString().slice(-5);
+}
+function filteredRecipes(){
+  const q = search.value.trim().toLowerCase();
+  let arr = recipes.filter(r => activeCategory==="All" || r.category===activeCategory);
+  if(q){
+    arr = arr.filter(r => [
+      r.title,r.category,r.status,r.summary,r.notes,
+      ...(r.tags||[]),...(r.ingredients||[]),...(r.instructions||[])
+    ].join(" ").toLowerCase().includes(q));
+  }
+  if(sort.value==="title") arr.sort((a,b)=>a.title.localeCompare(b.title));
+  else if(sort.value==="category") arr.sort((a,b)=>(a.category||"").localeCompare(b.category||"") || a.title.localeCompare(b.title));
+  else arr.sort((a,b)=>(b.updated||"").localeCompare(a.updated||""));
+  return arr;
+}
+function renderChips(){
+  const cats = ["All",...Array.from(new Set(recipes.map(r=>r.category).filter(Boolean))).sort()];
+  chips.innerHTML = cats.map(c=>`<button class="chip ${c===activeCategory?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+  chips.querySelectorAll("button").forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;render();});
+}
+function render(){
+  renderChips();
+  const arr = filteredRecipes();
+  document.getElementById("recipeCount").textContent = recipes.filter(r=>r.status==="Keeper").length;
+  if(!arr.length){
+    grid.innerHTML = `<div class="empty">No recipes found. Add a new one or try a different search.</div>`;
+    return;
+  }
+  grid.innerHTML = arr.map(r=>`
+    <article class="card">
+      <div class="meta">
+        ${r.status ? `<span class="tag ${r.status==="Keeper"?"keeper":""}">${esc(r.status)}</span>`:""}
+        ${r.category ? `<span class="tag">${esc(r.category)}</span>`:""}
+        ${r.time ? `<span class="tag">${esc(r.time)}</span>`:""}
+      </div>
+      <h3>${esc(r.title)}</h3>
+      <p>${esc(r.summary || "")}</p>
+      <footer>
+        <button class="linkbtn" onclick="openRecipe('${r.id}')">View recipe →</button>
+        <button class="btn" onclick="editRecipe('${r.id}')">Edit</button>
+      </footer>
+    </article>
+  `).join("");
+}
+
+function openRecipe(id){
+  const r = recipes.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById("viewTitle").textContent = r.title;
+  document.getElementById("viewBody").innerHTML = `
+    <div class="meta">
+      ${r.status?`<span class="tag ${r.status==="Keeper"?"keeper":""}">${esc(r.status)}</span>`:""}
+      ${r.category?`<span class="tag">${esc(r.category)}</span>`:""}
+      ${r.servings?`<span class="tag">Serves ${esc(r.servings)}</span>`:""}
+      ${r.time?`<span class="tag">${esc(r.time)}</span>`:""}
+    </div>
+    ${r.summary?`<p>${esc(r.summary)}</p>`:""}
+    <h3>Ingredients</h3>
+    <ul>${(r.ingredients||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    <h3>Instructions</h3>
+    <ol>${(r.instructions||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+    ${r.notes?`<h3>Notes</h3><div class="notes">${esc(r.notes).replace(/\n/g,"<br>")}</div>`:""}
+    ${(r.tags||[]).length?`<h3>Tags</h3><div class="meta">${r.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
+    <div class="toolbar" style="margin-top:22px">
+      <button class="btn primary" onclick="viewDialog.close();editRecipe('${r.id}')">Edit this recipe</button>
+    </div>
+  `;
+  viewDialog.showModal();
+}
+
+function editRecipe(id){
+  const r = recipes.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById("formTitle").textContent = "Edit Recipe";
+  document.getElementById("recipeId").value = r.id;
+  document.getElementById("title").value = r.title||"";
+  document.getElementById("category").value = r.category||"";
+  document.getElementById("status").value = r.status||"Keeper";
+  document.getElementById("servings").value = r.servings||"";
+  document.getElementById("time").value = r.time||"";
+  document.getElementById("tags").value = (r.tags||[]).join(", ");
+  document.getElementById("summary").value = r.summary||"";
+  document.getElementById("ingredients").value = (r.ingredients||[]).join("\n");
+  document.getElementById("instructions").value = (r.instructions||[]).join("\n");
+  document.getElementById("notes").value = r.notes||"";
+  document.getElementById("deleteBtn").style.display = "";
+  editDialog.showModal();
+}
+function addRecipe(){
+  document.getElementById("recipeForm").reset();
+  document.getElementById("formTitle").textContent = "Add Recipe";
+  document.getElementById("recipeId").value = "";
+  document.getElementById("status").value = "Keeper";
+  document.getElementById("deleteBtn").style.display = "none";
+  editDialog.showModal();
+}
+
+document.getElementById("recipeForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const id = document.getElementById("recipeId").value;
+  const existing = recipes.find(x=>x.id===id);
+  const today = new Date().toISOString().slice(0,10);
+  const obj = {
+    id: id || slugify(document.getElementById("title").value),
+    title: document.getElementById("title").value.trim(),
+    category: document.getElementById("category").value.trim() || "Uncategorized",
+    status: document.getElementById("status").value,
+    servings: document.getElementById("servings").value.trim(),
+    time: document.getElementById("time").value.trim(),
+    tags: document.getElementById("tags").value.split(",").map(x=>x.trim()).filter(Boolean),
+    summary: document.getElementById("summary").value.trim(),
+    ingredients: document.getElementById("ingredients").value.split("\n").map(x=>x.trim()).filter(Boolean),
+    instructions: document.getElementById("instructions").value.split("\n").map(x=>x.trim()).filter(Boolean),
+    notes: document.getElementById("notes").value.trim(),
+    created: existing?.created || today,
+    updated: today
+  };
+  if(existing) Object.assign(existing,obj);
+  else recipes.unshift(obj);
+  saveRecipes();
+  editDialog.close();
+});
+
+document.getElementById("deleteBtn").addEventListener("click", ()=>{
+  const id = document.getElementById("recipeId").value;
+  const r = recipes.find(x=>x.id===id);
+  if(!r) return;
+  if(confirm(`Delete "${r.title}"?`)){
+    recipes = recipes.filter(x=>x.id!==id);
+    saveRecipes();
+    editDialog.close();
+  }
+});
+
+document.getElementById("addBtn").onclick = addRecipe;
+search.addEventListener("input",render);
+sort.addEventListener("change",render);
+
+document.getElementById("exportBtn").onclick = ()=>{
+  const payload = {
+    app:"Robin's Recipe Box",
+    version:1,
+    exported:new Date().toISOString(),
+    recipes
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "robins-recipe-box.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+document.getElementById("importBtn").onclick = ()=>document.getElementById("fileInput").click();
+document.getElementById("fileInput").addEventListener("change", async e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const parsed = JSON.parse(await file.text());
+    const incoming = Array.isArray(parsed) ? parsed : parsed.recipes;
+    if(!Array.isArray(incoming)) throw new Error("No recipe list found.");
+    if(confirm(`Import ${incoming.length} recipes and replace the current library on this device?`)){
+      recipes = incoming;
+      saveRecipes();
+    }
+  }catch(err){
+    alert("That file could not be imported: " + err.message);
+  }
+  e.target.value="";
+});
+
+render();
+</script>
+</body>
+</html>
